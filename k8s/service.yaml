@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wisecow-service
+spec:
+  type: LoadBalancer  # Use LoadBalancer to expose the app externally
+  ports:
+    - port: 80  # The port the service will expose
+      targetPort: 3000  # The port your app is listening on
+  selector:
+    app: wisecow  # Match the labels defined in the deployment
