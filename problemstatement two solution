@@ -1,0 +1,69 @@
+solution for two objectives using Bash scripts.
+
+                                                                     Objective 1: System Health Monitoring Script (Bash)
+
+
+#!/bin/bash
+
+# Thresholds
+CPU_THRESHOLD=80
+MEMORY_THRESHOLD=80
+DISK_THRESHOLD=90
+
+LOG_FILE="/var/log/sys_health.log"
+
+# Get current usage stats
+cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}')
+memory_usage=$(free | awk '/Mem/{printf("%.2f"), $3/$2 * 100.0}')
+disk_usage=$(df / | grep / | awk '{print $5}' | sed 's/%//g')
+
+# Log function
+log_alert() {
+    echo "$(date): $1" | tee -a $LOG_FILE
+}
+
+# Check CPU usage
+if (( $(echo "$cpu_usage > $CPU_THRESHOLD" | bc -l) )); then
+    log_alert "High CPU usage: ${cpu_usage}%"
+fi
+
+# Check memory usage
+if (( $(echo "$memory_usage > $MEMORY_THRESHOLD" | bc -l) )); then
+    log_alert "High Memory usage: ${memory_usage}%"
+fi
+
+# Check disk usage
+if (( $disk_usage > $DISK_THRESHOLD )); then
+    log_alert "Low disk space: ${disk_usage}% used"
+fi
+
+# Check number of running processes
+process_count=$(ps aux | wc -l)
+log_alert "Running processes: $process_count"
+
+echo "System health check completed."
+
+
+                                                                            Objective 2: Application Health Checker (Bash)
+                                                                            
+                                                                       
+
+# Application URL
+URL="http://example.com"
+
+# Function to check the HTTP status code
+check_app_status() {
+    status_code=$(curl -o /dev/null -s -w "%{http_code}\n" $URL)
+    
+    if [ $status_code -eq 200 ]; then
+        echo "$(date): Application is UP. Status code: $status_code"
+    else
+        echo "$(date): Application is DOWN or not responding. Status code: $status_code"
+    fi
+}
+
+# Run the health check
+check_app_status
+
+
+
